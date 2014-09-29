@@ -6,7 +6,7 @@ function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
     subMat_len=size(Dgal,1);
     m=size(Dgal,3); % highest power in compensator denominator
     mu_d=diag(sum(Dgal~=0,3)-1); % degree of each diagonal element
-    Fdeg=mu_d+m % minimum degree of F (number of poles on each diagonal element)
+    Fdeg=mu_d+m; % minimum degree of F (number of poles on each diagonal element)
 % create F polynom matrix
     Fpol=cell(subMat_len);
     Fpol(:) = {0};

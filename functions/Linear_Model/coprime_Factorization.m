@@ -7,7 +7,7 @@ function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
     modu=@(a,b) mod(a,b)+b*(mod(a,b)==0);
     dR=diag(qr(Sm)); % diagonal of qr factorization
     if ~exist('tol','var')
-        tol=sqrt(max(size(Sm))*eps(norm(Sm)));
+        tol=1e-10;%sqrt(max(size(Sm))*eps(norm(Sm)));
     end
     diagZerosLoc=find(abs(dR)<tol); % locate zeros on diagonal
     

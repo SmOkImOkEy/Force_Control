@@ -40,35 +40,35 @@ for part=1:parts
         
   % REGULAR PARAMETERS GIVES LOW CONDITION NUMBER OF Smt(needed to solve for compensator)
  % setting easy values to improve condition number of Sm
-%              Rx=1;Lx=1.3;
-%              Dipole.moment=1;
-%              Dipole.inertia=0.002;
-%              Ihx0=1;
-%              Ihy0=2;
-%              Imx0=-1;
-%              Imy0=-3;
-%              F0=[1.5;1];
-%              phiB_ss=pi/4;
-%              h=1;kappa=1;
-%              alpha=1;Bm0=2;
+             Rx=1;Lx=1.3;
+             Dipole.moment=1;
+             Dipole.inertia=0.002;
+             Ihx0=1;
+             Ihy0=2;
+             Imx0=-1;
+             Imy0=-3;
+             F0=[1.5;1];
+             phiB_ss=pi/4;
+             h=1;kappa=1;
+             alpha=1;Bm0=2;
     % -------------------------------------------DEBUGING ONLY
     % substituting initial values    
     disp('substituting part parameters...')
     Amatrix=subs(Amatrix,{'Rx','Lx','Ry','Ly','h'},{Rx,Lx,Rx,Lx,h}); % substituting coil parameters
     Amatrix=subs(Amatrix,{'M','I','alpha'},{Dipole.moment,Dipole.inertia,alpha});
-    Amatrix=subs(Amatrix,{'Ihx','Ihy','Imx','Imy'},{Ihx0,Ihy0,Imx0,Imy0});
+    Amatrix=double(subs(Amatrix,{'Ihx','Ihy','Imx','Imy'},{Ihx0,Ihy0,Imx0,Imy0}));
 
     Bmatrix=subs(Bmatrix,{'Rx','Lx','Ry','Ly','h','kappa'},{Rx,Lx,Rx,Lx,h,kappa}); % substituting coil parameters
     Bmatrix=subs(Bmatrix,{'Fx_hat','Fy_hat'},{F0(1),F0(2)}); % substituting F0
     Bmatrix=subs(Bmatrix,{'Bm_hat','phiB_hat'},{Bm0,phiB_ss}); % substituting initial B
-    Bmatrix=subs(Bmatrix,'M',Dipole.moment);
+    Bmatrix=double(subs(Bmatrix,'M',Dipole.moment));
 
     Cmatrix=subs(Cmatrix,'M',Dipole.moment,kappa);
     Cmatrix=subs(Cmatrix,{'Ihx','Ihy','Imx','Imy'},{Ihx0,Ihy0,Imx0,Imy0});
-    Cmatrix=subs(Cmatrix,{'Rx','Lx','Ry','Ly','h','kappa'},{Rx,Lx,Rx,Lx,h,kappa}); % substituting coil parameters
+    Cmatrix=double(subs(Cmatrix,{'Rx','Lx','Ry','Ly','h','kappa'},{Rx,Lx,Rx,Lx,h,kappa})); % substituting coil parameters
     % converting to tf
     disp('Creating open loop system')
-    StateSpace=(ss(double(Amatrix),double(Bmatrix),double(Cmatrix),(0)));
+    StateSpace=(ss(Amatrix,Bmatrix,Cmatrix,0));
     Gtf=minreal(tf(StateSpace));
 %     save('tfMat','Gtf');
 % act 1: calculating left factors (non-coprime)
@@ -82,8 +82,8 @@ for part=1:parts
 
 % act 3: Co-prime Factorization (pole zero cancelation)
     disp('Co-prime Factorization...')
-    [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal,1);
-    [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,sqrt(tol(Ngal_cp,Dgal_cp)));
+    [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
+    [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
     [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
 % act 4: create compensator:
     disp('Compensator Design')
@@ -92,7 +92,7 @@ for part=1:parts
 %     poles=[-1 -2-1j -2+1j];
     poles=0.1*exp(1j*psi);
     [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
-    [Bgal,Agal]=TFSimplify(Bgal,Agal,sqrt(tol(Bgal,Agal)));
+    [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
     Agal=real(Agal);
     Bgal=real(Bgal);
     [Atf, Btf]=create_tf(Agal,Bgal); % needed only for debugging
