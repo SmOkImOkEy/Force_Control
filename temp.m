@@ -1,11 +1,14 @@
-for n=1:3
-    for m=1:3
-        pv=(num{n,m});
-        zv=(den{n,m});
-   %         disp(['zeros:',mat2str(z{n,m})])
-%         disp(['poles:',mat2str(p{n,m})])
-%         pause
-     
+ dep=[];
+    if ~exist('tol','var')
+        tol=1e-10;
     end
-end
-
+    rB=abs(diag(qr(Sm)));
+    for n=1:numel(rB)
+        r=rB(1:n);
+        rn=r(n)
+        r(dep)=[];
+        rat=rn/max(r);
+        if rat<tol
+            dep=cat(2,dep,n);
+        end
+    end
