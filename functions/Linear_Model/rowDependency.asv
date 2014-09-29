@@ -1,5 +1,0 @@
-function dep=rowDependency(Sm)
-    % dep=rowDependency(Sm)
-    % outputs indexes of dependent rows
-    r=abs(diag(qr(Sm.');
-end
