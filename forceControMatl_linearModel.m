@@ -40,17 +40,17 @@ for part=1:parts
         
   % REGULAR PARAMETERS GIVES LOW CONDITION NUMBER OF Smt(needed to solve for compensator)
  % setting easy values to improve condition number of Sm
-             Rx=1;Lx=1.3;
-             Dipole.moment=1;
-             Dipole.inertia=0.002;
-             Ihx0=1;
-             Ihy0=2;
-             Imx0=-1;
-             Imy0=-3;
-             F0=[1.5;1];
-             phiB_ss=pi/4;
-             h=1;kappa=1;
-             alpha=1;Bm0=2;
+%              Rx=1;Lx=1.3;
+%              Dipole.moment=1;
+%              Dipole.inertia=0.002;
+%              Ihx0=1;
+%              Ihy0=2;
+%              Imx0=-1;
+%              Imy0=-3;
+%              F0=[1.5;1];
+%              phiB_ss=pi/4;
+%              h=1;kappa=1;
+%              alpha=1;Bm0=2;
     % -------------------------------------------DEBUGING ONLY
     % substituting initial values    
     disp('substituting part parameters...')
