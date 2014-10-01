@@ -25,7 +25,15 @@ disp('loading TF')
     Amatrix=Gstruct.A;
     Bmatrix=Gstruct.B;
     Cmatrix=Gstruct.C;
-disp('Starting loop:')    
+disp('Starting loop:')  
+
+% substituting constants:
+    Amatrix=subs(Amatrix,{'Rx','Lx','Ry','Ly','h'},{Rx,Lx,Rx,Lx,h}); % substituting coil parameters
+    Amatrix=subs(Amatrix,{'M','I','alpha'},{Dipole.moment,Dipole.inertia,alpha});
+    Bmatrix=subs(Bmatrix,{'M','Rx','Lx','Ry','Ly','h','kappa'},{Dipole.moment,Rx,Lx,Rx,Lx,h,kappa}); % substituting coil parameters
+    Cmatrix=subs(Cmatrix,{'Rx','Lx','Ry','Ly','h','kappa'},{Rx,Lx,Rx,Lx,h,kappa}); % substituting coil parameters
+% ----------------------
+
 for part=1:parts
     disp(['PART ',num2str(part)])
     disp('initializing')
@@ -54,32 +62,22 @@ for part=1:parts
     % -------------------------------------------DEBUGING ONLY
     % substituting initial values    
     disp('substituting part parameters...')
-    Amatrix=subs(Amatrix,{'Rx','Lx','Ry','Ly','h'},{Rx,Lx,Rx,Lx,h}); % substituting coil parameters
-    Amatrix=subs(Amatrix,{'M','I','alpha'},{Dipole.moment,Dipole.inertia,alpha});
     Amatrix=double(subs(Amatrix,{'Ihx','Ihy','Imx','Imy'},{Ihx0,Ihy0,Imx0,Imy0}));
-
-    Bmatrix=subs(Bmatrix,{'Rx','Lx','Ry','Ly','h','kappa'},{Rx,Lx,Rx,Lx,h,kappa}); % substituting coil parameters
     Bmatrix=subs(Bmatrix,{'Fx_hat','Fy_hat'},{F0(1),F0(2)}); % substituting F0
-    Bmatrix=subs(Bmatrix,{'Bm_hat','phiB_hat'},{Bm0,phiB_ss}); % substituting initial B
-    Bmatrix=double(subs(Bmatrix,'M',Dipole.moment));
-
+    Bmatrix=double(subs(Bmatrix,{'Bm_hat','phiB_hat'},{Bm0,phiB_ss})); % substituting initial B
     Cmatrix=subs(Cmatrix,'M',Dipole.moment,kappa);
-    Cmatrix=subs(Cmatrix,{'Ihx','Ihy','Imx','Imy'},{Ihx0,Ihy0,Imx0,Imy0});
-    Cmatrix=double(subs(Cmatrix,{'Rx','Lx','Ry','Ly','h','kappa'},{Rx,Lx,Rx,Lx,h,kappa})); % substituting coil parameters
+    Cmatrix=double(subs(Cmatrix,{'Ihx','Ihy','Imx','Imy'},{Ihx0,Ihy0,Imx0,Imy0}));
     % converting to tf
     disp('Creating open loop system')
     StateSpace=(ss(Amatrix,Bmatrix,Cmatrix,0));
     G_ol=minreal(tf(StateSpace));
-%     save('tfMat','Gtf');
-% act 1: calculating left factors (non-coprime)
+
+ % act 1: calculating left factors (non-coprime)
     disp('Calculate Left Fraction')
     [LN,LD]=left_poly_fractions(G_ol);
 % act 2: Creating coefficient matrix Ngal,Dgal (not co-prime)
     disp('Coefficient Matrixes')
     [Ngal, Dgal]=Coefficient_Matrixes(LN,LD);
-   % set tolerance function    
-     tol=@(A,B) min(max([size(A) size(B)])*eps([norm3Dmat(A) norm3Dmat(B)]));
-
 % act 3: Co-prime Factorization (pole zero cancelation)
     disp('Co-prime Factorization...')
     [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
@@ -88,25 +86,12 @@ for part=1:parts
 % act 4: create compensator:
     disp('Compensator Design')
     psi=[pi pi-pi/4 pi+pi/4];
-    
-%     poles=[-1 -2-1j -2+1j];
     poles=0.01*exp(1j*psi);
     [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
     [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
     Agal=real(Agal);
     Bgal=real(Bgal);
     [Atf, Btf]=create_tf(Agal,Bgal); % needed only for debugging
-% act 5: testing
-    disp('Testing Compensator')
-    [~,~,kf]=zpkdata(Ftf);
- [~, ~, k]=zpkdata(minreal(Atf*Dtf+Btf*Ntf-Ftf));
-   if norm(k)<tol(kf,kf)
-       disp('VERY GOOD')
-   elseif norm(k)<tol(Ngal_cp,Dgal_cp)
-       disp('GOOD')
-   elseif norm(k)<1e-8;
-       disp('Fine')
-   end
     
 % ----------------------Simulation:--------------------
 disp('Simulating...')
@@ -159,23 +144,23 @@ subMat_len=size(G_ol,1);
     % check step response poled of G is poles of F:
         nvec=(reshape(1:subMat_len^2,subMat_len,subMat_len)');
         n=0;
-         for in=1:subMat_len
-             for out=1:subMat_len
-                 n=n+1;
-                 figure(10)
-                 subplot(subMat_len,subMat_len,nvec(n))
-                 fig=plot(ttl,ystp_cl(:,n),'-b',ttl,ystpf_cl(:,n),':r');
-                 grid on
-                 legend('Simulated','Desired')
-                 title (['Step input:',num2str(in),' output:',num2str(out)])
-                 xlabel 't [sec]'
-                 ylabel 'step response'
-                 set(fig,'linewidth',2)
-%                 stepIn=stepinfo(ystp,tstp);
-%                 stepIn.RiseTime
-             end
-         end 
-         disp(['F error norm: ',num2str(norm(ystp_cl(:)-ystpf_cl(:))/norm(ystpf_cl(:))*100),'%'])
+%          for in=1:subMat_len
+%              for out=1:subMat_len
+%                  n=n+1;
+%                  figure(10)
+%                  subplot(subMat_len,subMat_len,nvec(n))
+%                  fig=plot(ttl,ystp_cl(:,n),'-b',ttl,ystpf_cl(:,n),':r');
+%                  grid on
+%                  legend('Simulated','Desired')
+%                  title (['Step input:',num2str(in),' output:',num2str(out)])
+%                  xlabel 't [sec]'
+%                  ylabel 'step response'
+%                  set(fig,'linewidth',2)
+% %                 stepIn=stepinfo(ystp,tstp);
+% %                 stepIn.RiseTime
+%              end
+%          end 
+%          disp(['F error norm: ',num2str(norm(ystp_cl(:)-ystpf_cl(:))/norm(ystpf_cl(:))*100),'%'])
     % -------------------------
    % comparison between Open and Closed loop:
      for n=1:subMat_len       

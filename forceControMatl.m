@@ -39,7 +39,7 @@ disp('setting constants...')
     disp(loopstr)
 % --------------------------------------
    
-    en=10;
+    en=1;
 % sample rate:
     Sample.dt=en/1001;
     dt=Sample.dt;
@@ -47,7 +47,7 @@ disp('setting constants...')
 disp('predefined path')
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) t;   
+    Route.xfun=@(t) 2*cos(2*pi/en*t);   
     Route.yfun=@(t) sin(4*pi/en*t);
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt)-Route.xfun(Route.start_time); % route x samples
@@ -124,7 +124,7 @@ disp('setting simulation...')
  disp('plotting results, actuall model')
 simsamp=floor(linspace(1,numel(simForce.time),size(simForce.data,1)/10));
 
-figure(1)
+figure(51)
     subplot(2,1,1)
         fig=plot(tt,F(1,:),simForce.time(simsamp),squeeze(simForce.data(simsamp,1)));
         set(fig(1),'lineWidth',3)
@@ -136,7 +136,7 @@ figure(1)
         set(fig(1),'lineWidth',3)
         legend('F wanted','F got')
         title 'Fy comparison'
-figure(2)
+figure(52)
     subplot(2,2,1)
         plot(simCurrent.time(simsamp),squeeze(simCurrent.data(simsamp,1)))
         title 'Ih_x'
@@ -157,7 +157,7 @@ figure(2)
         title 'Im_y'
         xlabel 't [sec]'
         ylabel '[A]'
-figure(3)
+figure(53)
     fig=plot(x,y,simDipoleLoc.data(simsamp,1),simDipoleLoc.data(simsamp,2));
     legend('Desired','Simulated')
     title 'Route Comparison'
@@ -172,7 +172,7 @@ xSim=simDipoleLoc.data(simsamp,1);
 ySim=simDipoleLoc.data(simsamp,2);
 phiSim=simPhiB.data(simsamp);
 % plot(tt,phiB,'b*',simphiB.time(simsamp),simphiB.data(simsamp),'r')
-figure(4)
+figure(54)
     subplot(3,1,1)
         fig=plot(tt,x,'k',T,xSim,'b--');
         set(fig(1),'lineWidth',1.7)
