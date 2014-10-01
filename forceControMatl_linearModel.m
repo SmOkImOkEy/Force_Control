@@ -90,7 +90,7 @@ for part=1:parts
     psi=[pi pi-pi/4 pi+pi/4];
     
 %     poles=[-1 -2-1j -2+1j];
-    poles=0.1*exp(1j*psi);
+    poles=0.01*exp(1j*psi);
     [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
     [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
     Agal=real(Agal);
