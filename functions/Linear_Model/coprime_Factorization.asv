@@ -1,17 +1,18 @@
-function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
+% function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
 
     Sm=double(create_Sm(LNgal,LDgal)); % create coefficient matrix
     subMat_len=size(LDgal,1);
     colLen=2*subMat_len;
 
-%     modu=@(a,b) mod(a,b)+b*(mod(a,b)==0);
+    modu=@(a,b) mod(a,b)+b*(mod(a,b)==0);
 %     dR=abs(diag(qr(Sm))); % diagonal of qr factorization
 %     if ~exist('tol','var')
 %         tol=1e-10;%sqrt(max(size(Sm))*eps(norm(Sm)));
 %     end
 %     diagZerosLoc=find(abs(dR)<tol); % locate zeros on diagonal
     indepInd=indepCols(Sm,subMat_len);
-    diagZerosLoc=1:num
+    diagZerosLoc=1:size(Sm,2);
+    diagZerosLoc(indepInd)=[];
 %     diagZerosLoc=rowDependency(Sm.');
     % unique unsorted: find all main dependences and only them.
       diagZeroLocGroups=modu(diagZerosLoc,subMat_len);
@@ -28,10 +29,11 @@ function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
                   % to the 'zeroIndex's' main dependence, exclude removed items
         Smt=Sm(:,currIndex); % pick submatrix
         temp=null(Smt); % solve homogenus equation.
-      % error handler:
-        if size(temp,2)>1 
-            disp('nullity larger than 1 - check tolerance')
-        elseif isempty(temp)
+        [temp,flag,bound] = nulls(Smt,1);
+        % error handler:
+        if flag
+            disp('nullity larger than 1 - check tolerance')          
+        elseif bound==0
             disp('no nullity')
             break;
         else
@@ -59,4 +61,4 @@ function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
      degD=max(max(sum(Dgal_CP~=0,3))); % degree of D
      Ngal_CP=Ngal_CP(:,:,1:degD);
      Dgal_CP=Dgal_CP(:,:,1:degD);
-end
+% end

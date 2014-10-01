@@ -28,7 +28,7 @@ function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
         currIndex=indexes(indexes<=FZeroloc(zeroIndex)); % pick items from left
                   % to the 'zeroIndex's' main dependence, exclude removed items
         Smt=Sm(:,currIndex); % pick submatrix
-        temp=null(Smt); % solve homogenus equation.
+        temp=null(Smt,'r'); % solve homogenus equation.
       % error handler:
         if size(temp,2)>1 
             disp('nullity larger than 1 - check tolerance')
