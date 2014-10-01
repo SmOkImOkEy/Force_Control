@@ -47,8 +47,8 @@ disp('setting constants...')
 disp('predefined path')
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) t.^2/(2*m);   
-    Route.yfun=@(t) t.^2/(2*m);
+    Route.xfun=@(t) t;   
+    Route.yfun=@(t) sin(4*pi/en*t);
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt)-Route.xfun(Route.start_time); % route x samples
     y=Route.yfun(tt)-Route.yfun(Route.start_time); % route y samples 
