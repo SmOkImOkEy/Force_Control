@@ -126,20 +126,17 @@ subMat_len=size(G_ol,1);
     [ystp_cl, ~]=step(G_cl,ttl);
     amp_cl=diag(diag(1./squeeze(real(ystp_cl(end,:,:)))));
     % ----------------------
-% system with F poles only: (debugginh only)
     % simulating Imaged Closed Loop to find AMP that get unity response
     [ystpf_cl, ~]=step(G_clf,ttl);
     amp_clf=diag(diag(1./squeeze(real(ystpf_cl(end,:,:)))));
     % ----------------------
-% ----------------
     % simulating Open Loop to find AMP that get unity response
       [ystp_ol, ~]=step(G_ol,ttl);
       amp_ol=diag(diag(1./squeeze(real(ystp_ol(end,:,:)))));
     % ----------------------
     % multiplying systems by current AMP
-      G_cl=amp_cl*G_cl; % closed loop
-      G_clf=amp_clf*G_clf; % imaged closed loop
-      G_ol=amp_ol*G_ol; % open loop
+      G_cl=amp_cl*G_cl;
+      G_ol=amp_ol*G_ol;
     % ---------
  % running simulation with input:
     % set input vector:
@@ -164,7 +161,7 @@ subMat_len=size(G_ol,1);
                  n=n+1;
                  figure(10)
                  subplot(subMat_len,subMat_len,nvec(n))
-                 fig=plot(ttl,ystp_cl(:,n),'-b',ttl,ystpf_cl(:,n),':r');
+                 fig=plot(ttl,ystp_cl(:,n),'-b',ttl,ystpf(:,n),':r');
                  grid on
                  legend('Simulated','Desired')
                  title (['Step input:',num2str(in),' output:',num2str(out)])
@@ -175,7 +172,7 @@ subMat_len=size(G_ol,1);
 %                 stepIn.RiseTime
              end
          end 
-         disp(['F error norm: ',num2str(norm(ystp_cl(:)-ystpf_cl(:))/norm(ystpf_cl(:))*100),'%'])
+         disp(['F error norm: ',num2str(norm(ystp(:)-ystpf(:))/norm(ystpf(:))*100),'%'])
     % -------------------------
    % comparison between Open and Closed loop:
      for n=1:subMat_len       
@@ -190,13 +187,13 @@ subMat_len=size(G_ol,1);
          figure(part)
          % plot CL results
            subplot(subMat_len, 2,2*n-1)
-           plot(ttl,u(:,n),'--b',ttl,y_sim_cl(:,n),'-k')
+           plot(ttl,u(:,n),'--b',ttl,(y_sim_cl(:,n)),'-k')
            legend('Input','Output(CL)')
            title (['Closed Loop ',strTit])
            
          % plot OL results
            subplot(subMat_len, 2,2*n)
-           plot(ttl,u(:,n),'--b',ttl,(y_sim_ol(:,n)),'-r')
+           plot(ttl,u(:,n),'--b',ttl,(y_sim_ol(:,n)),'-k')
            legend('Input','Output(OL)')
            title (['Open Loop ',strTit])  
      end
