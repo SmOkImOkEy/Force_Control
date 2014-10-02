@@ -86,7 +86,7 @@ for part=1:parts
 % act 4: create compensator:
     disp('Compensator Design')
     psi=[pi pi-pi/4 pi+pi/4];
-    poles=0.01*exp(1j*psi);
+    poles=0.1*exp(1j*psi);
     [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
     [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
     Agal=real(Agal);
@@ -96,7 +96,7 @@ for part=1:parts
 % ----------------------Simulation:--------------------
 disp('Simulating...')
 subMat_len=size(G_ol,1);
-    Ctf=minreal(Atf^-1*Btf); % Compensator
+    Ctf=(Atf^-1*Btf); % Compensator
     Den=(Atf*Dtf+Btf*Ntf)^-1; % dirty denominator
    % cleaning denominator:
       [z, p, k]=zpkdata(Den); 
