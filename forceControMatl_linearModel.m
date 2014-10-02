@@ -97,7 +97,6 @@ for part=1:parts
 disp('Simulating...')
 subMat_len=size(G_ol,1);
     Ctf=minreal(Atf^-1*Btf); % Compensator
-    
     Den=(Atf*Dtf+Btf*Ntf)^-1; % dirty denominator
    % cleaning denominator:
       [z, p, k]=zpkdata(Den); 
