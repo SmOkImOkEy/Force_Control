@@ -47,7 +47,7 @@ disp('setting constants...')
 disp('predefined path')
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) 2*cos(2*pi/en*t);   
+    Route.xfun=@(t) cos(2*pi/en*t);   
     Route.yfun=@(t) sin(4*pi/en*t);
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt)-Route.xfun(Route.start_time); % route x samples
@@ -95,7 +95,7 @@ disp('spline building...')
 
 
 disp('setting simulation...')
-    simIn=timeseries([F;phiB;Bmag],tt,'name','Predefined Route');
+    simIn=timeseries([F;phiB],tt,'name','Predefined Route');
     % Initial Values
     initialValues.R0=[x(1);y(1)];
     initialValues.V0=[diff(x(1:2))/dt;diff(y(1:2))/dt];

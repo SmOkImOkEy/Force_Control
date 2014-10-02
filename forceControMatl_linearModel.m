@@ -187,3 +187,17 @@ subMat_len=size(G_ol,1);
      end
 end
 % ----------------------------------------------------------
+% Calculating Route
+    Agot=y_sim_cl(:,1:2)/m;
+
+    Vel=cumtrapz(ttl,Agot);
+    Vel(:,1)=Vel(:,1)+initialValues.V0(1);
+    Vel(:,2)=Vel(:,2)+initialValues.V0(2);
+
+    R=cumtrapz(ttl,Vel);
+    R(:,1)=R(:,1)+initialValues.R0(1);
+    R(:,2)=R(:,2)+initialValues.R0(2);
+    figure(parts+1)
+    plot(x,y,'g-',R(:,1),R(:,2),'b--')
+    legend('wanted','linear got')
+
