@@ -86,7 +86,7 @@ for part=1:parts
 % act 4: create compensator:
     disp('Compensator Design')
     psi=[pi pi-pi/4 pi+pi/4];
-    poles=0.1*exp(1j*psi);
+    poles=.1*exp(1j*psi);
     [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
     [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
     Agal=real(Agal);
@@ -99,12 +99,13 @@ subMat_len=size(G_ol,1);
     Ctf=(Atf^-1*Btf); % Compensator
     Den=(Atf*Dtf+Btf*Ntf)^-1; % dirty denominator
    % cleaning denominator:
-      [z, p, k]=zpkdata(Den); 
-      k(abs(k)<sqrt(subMat_len*eps(norm(k))))=0;
-      Den=zpk(z,p,k);
+%       [z, p, k]=zpkdata(Den); 
+%       k(abs(k)<sqrt(subMat_len*eps(norm(k))))=0;
+%       Den=zpk(z,p,k);
    % ----
     
     G_cl=minreal(Ntf*Den*Btf); % closed loop - without amp
+%     G_cl=minreal((eye(3)+Ctf*Ntf*Dtf^-1)^-1*Ctf*Ntf*Dtf^-1)
     G_clf=minreal(Ntf*Ftf^-1*Btf); % imaged cl with poles we want
     % simulating Closed Loop to find AMP that get unity response
     [ystp_cl, ~]=step(G_cl,ttl);
