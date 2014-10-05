@@ -47,11 +47,12 @@ disp('setting constants...')
 disp('predefined path')
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) cos(2*pi/en*t);   
-    Route.yfun=@(t) sin(4*pi/en*t);
+    Route.xfun=@(t) 1/(2*m)*t.^2;   
+    Route.yfun=@(t) 2/(2*m)*t.^2; 
+    
     tt=(Route.start_time:dt:Route.end_time);  
-    x=Route.xfun(tt)-Route.xfun(Route.start_time); % route x samples
-    y=Route.yfun(tt)-Route.yfun(Route.start_time); % route y samples 
+    x=Route.xfun(tt); % route x samples
+    y=Route.yfun(tt); % route y samples 
     
   mov=0;
     plov % plot route (if mov==1 than plot movie to examine velocity)
