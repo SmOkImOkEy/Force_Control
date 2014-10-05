@@ -38,7 +38,7 @@ global g mu0 % constants
     maxCurr=inf;%0.3*preece; % third of preece (~10sec)current   
 % Medium Parameters
     Medium.mu=0;%0.3;
-    Medium.alpha=0; % liquid friction coefficient for moment    
+    Medium.alpha=10; % liquid friction coefficient for moment    
     Medium.viscosity=0;%0.2;
     gain=1; % conpensator is regular PID controller on this version
     alpha=Medium.alpha;
