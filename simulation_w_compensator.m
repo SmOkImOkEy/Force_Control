@@ -115,7 +115,7 @@ disp('loading TF')
     [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
 % act 4: create compensator:
     disp('Compensator Design')
-    psi=[pi pi-pi/40 pi+pi/40];
+    psi=[pi pi-pi/4 pi+pi/4];
     poles=.01*exp(1j*psi);
 %     poles=[-.01 -.01-.1j -.01+.1j];
     [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
@@ -136,8 +136,11 @@ disp('Compensator ready')
 % ----------------
 
     % multiplying systems by current AMP
-    G_cl=amp_cl*G_cl; % closed loop
-    % ---------
+    G_cl=amp_cl*G_cl; % closed loo 
+        % ---------
+
+        
+     
 disp('Close loop system ready')
  % running simulation with input:
     % set input vector:
@@ -147,7 +150,25 @@ disp('Close loop system ready')
      [y_sim_cl,~]=lsim(G_cl,u,tt);
       y_sim_cl=real(y_sim_cl);
       y_sim_cl(:,3)=mod(y_sim_cl(:,3)+pi,2*pi)-pi; % setting limits of phi fo plotting
-     
+  
+ % comparison between Open and Closed loop:
+     for n=1:subMat_len       
+         switch n
+            case 1 
+                strTit='F_x'; 
+            case 2 
+                strTit='F_y';
+            case 3 
+                strTit='\phi_B';
+         end   
+         figure(5)
+         % plot CL results
+           subplot(subMat_len, 1,n)
+           plot(tt,u(:,n),'--b',tt,y_sim_cl(:,n),'-k')
+           legend('Input','Output(CL)')
+           title (['Closed Loop ',strTit])
+     end      
+      
 % Run nonlinear simulation of closed loop with compensator:
  disp('starting nonlinear simulation... this may take a while')
 
@@ -208,7 +229,8 @@ xSim=simDipoleLoc.data(simsamp,1);
 ySim=simDipoleLoc.data(simsamp,2);
 phiSim=simPhiB.data(simsamp);
 % plot(tt,phiB,'b*',simphiB.time(simsamp),simphiB.data(simsamp),'r')
-figure(54)
+figure(4)
+loopstr='closes'
     subplot(3,1,1)
         fig=plot(tt,x,'k',T,xSim,'b--');
         set(fig(1),'lineWidth',1.7)
