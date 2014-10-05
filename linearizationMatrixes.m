@@ -33,7 +33,7 @@ phiB=atan2(Ihy,Ihx);
 phiM=phiB-theta;
 
 G_mat=[M*kappa*cos(phiM)*(Imx-1/2*Imy);
-    M*kappa*cos(phiM)*(-1/2*Imx+Imy);
+    M*kappa*sin(phiM)*(-1/2*Imx+Imy);
     phiB];
 A=sym(zeros(6));
 C=sym(zeros(3,6));
