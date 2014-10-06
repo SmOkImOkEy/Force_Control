@@ -13,8 +13,8 @@ function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
     Fgal=zeros([subMat_len,subMat_len,max(Fdeg)]);
     for n=1:subMat_len
        pol=real(poly(poles(1:Fdeg(n))));
-       Fpol{n,n}=pol(end:-1:1); % desired denominator shaped for TF
-       Fgal(n,n,1:numel(pol))=permute(pol,[1 3 2]); 
+       Fpol{n,n}=pol; % desired denominator shaped for TF
+       Fgal(n,n,1:numel(pol))=permute(pol(end:-1:1),[1 3 2]); 
        % /\ desired denominator shaped as matrix (Fgal)
     end
     Ftf=tf(Fpol,1);

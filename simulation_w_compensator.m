@@ -113,15 +113,15 @@ if ClosedLoop
     % act 3: Co-prime Factorization (pole zero cancelation)
         disp('Co-prime Factorization...')
         [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
-        [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
+%         [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
         [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
     % act 4: create compensator:
         disp('Compensator Design')
         psi=[pi pi-pi/40 pi+pi/40];
-        poles=.01*exp(1j*psi);
+        poles=1e4*exp(1j*psi);
     %     poles=[-.01 -.01-.1j -.01+.1j];
         [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
-        [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
+%         [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
         Agal=real(Agal);
         Bgal=real(Bgal);
         [Atf, Btf]=create_tf(Agal,Bgal); % needed only for debugging
@@ -131,6 +131,7 @@ if ClosedLoop
         Ctf=(Btf*Atf^-1); % Compensator
         disp('Compensator ready')
         G_cl=minreal(Ntf*(Atf*Dtf+Btf*Ntf)^-1*Btf); % closed loop - without amp
+%         G_cl=minreal((eye(3)+Ntf*Dtf^-1*Ctf)^-1*Ntf*Dtf^-1*Ctf);
         [ystp_cl, ~]=step(G_cl,tt);
         amp_cl=diag(diag(1./squeeze(real(ystp_cl(end,:,:)))));
     % ----------------
