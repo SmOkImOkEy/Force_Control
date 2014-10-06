@@ -14,7 +14,6 @@ disp('setting constants...')
     kappa=-1.1700e-05;% ratio between maxwell current to field gradient
     % it is the field d/dx made by a 1A current runs in x coil on r=(0,0)
 
-    disp('closed')
 % --------------------------------------
    
     en=10;
@@ -62,7 +61,8 @@ disp('setting simulation...')
     save('par','simIn','-v7.3')
     
  % Create Compensator:
- 
+ ClosedLoop=true; % select action (closed loop or open loop comparison)
+
  % linear model:
 disp('Calculating Linear Model..')
 
@@ -101,74 +101,76 @@ disp('loading TF')
     StateSpace=(ss(Amatrix,Bmatrix,Cmatrix,0));
     G_ol=minreal(tf(StateSpace));
 % -------------- Open loop system ready ---------------
-    
- % act 1: calculating left factors (non-coprime)
-    disp('Calculate Left Fraction')
-    [LN,LD]=left_poly_fractions(G_ol);
-% act 2: Creating coefficient matrix Ngal,Dgal (not co-prime)
-    disp('Coefficient Matrixes')
-    [Ngal, Dgal]=Coefficient_Matrixes(LN,LD);
-% act 3: Co-prime Factorization (pole zero cancelation)
-    disp('Co-prime Factorization...')
-    [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
-    [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
-    [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
-% act 4: create compensator:
-    disp('Compensator Design')
-    psi=[pi pi-pi/4 pi+pi/4];
-    poles=.01*exp(1j*psi);
-%     poles=[-.01 -.01-.1j -.01+.1j];
-    [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
-    [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
-    Agal=real(Agal);
-    Bgal=real(Bgal);
-    [Atf, Btf]=create_tf(Agal,Bgal); % needed only for debugging
-    
-% ----------------------Linear Simulation:--------------------
-subMat_len=size(G_ol,1);
-    Ctf=(Btf*Atf^-1); % Compensator
-disp('Compensator ready')
+if ClosedLoop
+     loopstr='closed';
 
-    G_cl=minreal(Ntf*(Atf*Dtf+Btf*Ntf)^-1*Btf); % closed loop - without amp
+        % act 1: calculating left factors (non-coprime)
+        disp('Calculate Left Fraction')
+        [LN,LD]=left_poly_fractions(G_ol);
+    % act 2: Creating coefficient matrix Ngal,Dgal (not co-prime)
+        disp('Coefficient Matrixes')
+        [Ngal, Dgal]=Coefficient_Matrixes(LN,LD);
+    % act 3: Co-prime Factorization (pole zero cancelation)
+        disp('Co-prime Factorization...')
+        [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
+        [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
+        [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
+    % act 4: create compensator:
+        disp('Compensator Design')
+        psi=[pi pi-pi/40 pi+pi/40];
+        poles=.01*exp(1j*psi);
+    %     poles=[-.01 -.01-.1j -.01+.1j];
+        [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
+        [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
+        Agal=real(Agal);
+        Bgal=real(Bgal);
+        [Atf, Btf]=create_tf(Agal,Bgal); % needed only for debugging
 
-    [ystp_cl, ~]=step(G_cl,tt);
-    amp_cl=diag(diag(1./squeeze(real(ystp_cl(end,:,:)))));
-% ----------------
+    % ----------------------Linear Simulation:--------------------
+        subMat_len=size(G_ol,1);
+        Ctf=(Btf*Atf^-1); % Compensator
+        disp('Compensator ready')
+        G_cl=minreal(Ntf*(Atf*Dtf+Btf*Ntf)^-1*Btf); % closed loop - without amp
+        [ystp_cl, ~]=step(G_cl,tt);
+        amp_cl=diag(diag(1./squeeze(real(ystp_cl(end,:,:)))));
+    % ----------------
 
-    % multiplying systems by current AMP
-    G_cl=amp_cl*G_cl; % closed loo 
-        % ---------
+        % multiplying systems by current AMP
+        G_cl=amp_cl*G_cl; % closed loo 
+            % ---------
+    disp('Close loop system ready')
+     % running simulation with input:
+        % set input vector:
+           u=[F; mod(phiB+pi,2*pi)-pi].';
+        % simulating closed and open loop:
+            % closed loop:
+         [y_sim_cl,~]=lsim(G_cl,u,tt);
+          y_sim_cl=real(y_sim_cl);
+          y_sim_cl(:,3)=mod(y_sim_cl(:,3)+pi,2*pi)-pi; % setting limits of phi fo plotting
 
-        
-     
-disp('Close loop system ready')
- % running simulation with input:
-    % set input vector:
-       u=[F; mod(phiB+pi,2*pi)-pi].';
-    % simulating closed and open loop:
-        % closed loop:
-     [y_sim_cl,~]=lsim(G_cl,u,tt);
-      y_sim_cl=real(y_sim_cl);
-      y_sim_cl(:,3)=mod(y_sim_cl(:,3)+pi,2*pi)-pi; % setting limits of phi fo plotting
-  
- % comparison between Open and Closed loop:
-     for n=1:subMat_len       
-         switch n
-            case 1 
-                strTit='F_x'; 
-            case 2 
-                strTit='F_y';
-            case 3 
-                strTit='\phi_B';
-         end   
-         figure(5)
-         % plot CL results
-           subplot(subMat_len, 1,n)
-           plot(tt,u(:,n),'--b',tt,y_sim_cl(:,n),'-k')
-           legend('Input','Output(CL)')
-           title (['Closed Loop ',strTit])
-     end      
-      
+     % comparison between Open and Closed loop:
+         for n=1:subMat_len       
+             switch n
+                case 1 
+                    strTit='F_x'; 
+                case 2 
+                    strTit='F_y';
+                case 3 
+                    strTit='\phi_B';
+             end   
+             figure(5)
+             % plot CL results
+               subplot(subMat_len, 1,n)
+               plot(tt,u(:,n),'--b',tt,y_sim_cl(:,n),'-k')
+               legend('Input','Output(CL)')
+               title (['Linear system: Closed Loop ',strTit])
+         end      
+else % not closed loop
+    loopstr='Open';
+    Ctf=eye(3);
+    amp_cl=eye(3);
+    G_cl=zeros(3);
+end
 % Run nonlinear simulation of closed loop with compensator:
  disp('starting nonlinear simulation... this may take a while')
 
@@ -230,7 +232,6 @@ ySim=simDipoleLoc.data(simsamp,2);
 phiSim=simPhiB.data(simsamp);
 % plot(tt,phiB,'b*',simphiB.time(simsamp),simphiB.data(simsamp),'r')
 figure(4)
-loopstr='closes'
     subplot(3,1,1)
         fig=plot(tt,x,'k',T,xSim,'b--');
         set(fig(1),'lineWidth',1.7)
