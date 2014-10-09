@@ -194,8 +194,9 @@ figure(1)
         set(fig(1),'lineWidth',3)
         legend('F wanted','F got')
         % axis([0 en -7*abs(max(F(1,:))) 7*abs(max(F(1,:)))])
-        subplot(2,1,2)
         title 'Fx comparison'
+
+        subplot(2,1,2)
         fig=plot(tt,F(2,:),simForce.time(simsamp),squeeze(simForce.data(simsamp,2)));
         set(fig(1),'lineWidth',3)
         legend('F wanted','F got')
@@ -254,4 +255,3 @@ figure(4)
         set(fig(1),'lineWidth',1.7)
 %
 % forceControMatl_linearModel  
-figure(1)
