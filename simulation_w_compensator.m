@@ -16,7 +16,7 @@ disp('setting constants...')
 
 % --------------------------------------
    
-    en=5;
+    en=10;
 % sample rate:
     Sample.dt=en/1001;
     dt=Sample.dt;
@@ -27,8 +27,8 @@ disp('setting constants...')
 disp('predefined path')
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) cos(2*pi/en*t+pi/4);   
-    Route.yfun=@(t) 2*sin(4*pi/en*t+pi/4);
+    Route.xfun=@(t) t.^2;   
+    Route.yfun=@(t) t+t.*sin(5*pi/en*t);
     
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt); % route x samples
