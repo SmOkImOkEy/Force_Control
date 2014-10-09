@@ -120,7 +120,7 @@ if ClosedLoop
     % act 4: create compensator:
         disp('Compensator Design')
         psi=[pi pi-pi/40 pi+pi/40];
-        poles=1e4*exp(1j*psi);
+        poles=1e6*exp(1j*psi);
     %     poles=[-.01 -.01-.1j -.01+.1j];
         [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
 %         [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
@@ -178,7 +178,7 @@ end
  disp('starting nonlinear simulation... this may take a while')
     openModels = find_system('SearchDepth', 0);
     tic
-    if ~any(strcmp(openModels,'ForceControl_closed_loop'))
+    if all(strcmp(openModels,'ForceControl_closed_loop'))
         open 'ForceControl_closed_loop.slx'
     end
     set_param('ForceControl_closed_loop', 'StopTime', num2str(tt(end)))
