@@ -1,11 +1,19 @@
-function indepInd=indepCols(Sm,subMat_len)
-    dR=diag(abs(qr(Sm)));
-    dR=[dR ;zeros(size(Sm,2)-numel(dR),1)];
-    indexes=reshape(1:size(Sm,2),subMat_len,[]);
-    inD=indexes(:,5:2:end);
-    inN=indexes(:,4:2:end);
-
-    [~,sortIndex] = sort(dR(inN(:)),'descend');  %# Sort the values in
-    topNInd = inN(sortIndex(1:rank(Sm)-9-numel(inD)));  %# Get a linear index into A of the 5 largest values
-    indepInd=sort([(1:9)';inD(:); topNInd(:)]);
+function indepInd=indepCols(Sm,tol)
+    dR=diag(qr(Sm));
+%     if rank(Sm(:,1:9))<9
+%         error('first 9 columns dependent')
+%     end
+    rem=[];
+    n=1;
+   Nindexes=10:numel(dR);
+    while n<=numel(Nindexes) && ~isempty(Nindexes)
+        if abs(dR(Nindexes(n))/dR(Nindexes(n)-6))<tol
+            rem=cat(2,rem,-9+(Nindexes(n):6:numel(dR)));
+        else
+            n=n+1;
+        end
+        Nindexes=10:numel(dR);
+        Nindexes(rem)=[];
+    end
+    indepInd=cat(2,1:9,Nindexes);
 end

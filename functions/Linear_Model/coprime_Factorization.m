@@ -10,7 +10,7 @@ function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
 %         tol=1e-10;%sqrt(max(size(Sm))*eps(norm(Sm)));
 %     end
 %     diagZerosLoc=find(abs(dR)<tol); % locate zeros on diagonal
-    indepInd=indepCols(Sm,subMat_len);
+    indepInd=indepCols(Sm,tol);
     diagZerosLoc=1:size(Sm,2);
     diagZerosLoc(indepInd)=[];
 %     diagZerosLoc=rowDependency(Sm.');

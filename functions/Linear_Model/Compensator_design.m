@@ -22,7 +22,7 @@ function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
 
 % creating new Sm matrix of co-prime fractions
       Sm=double(create_Sm_rows(Ngal,Dgal,size(Fnr,2)));  % in order to find compensator we need Sm'  
-      indepInd=indepCols(Sm.',subMat_len);     %
+      indepInd=indepCols(Sm.',1e-8);     %
 
       FnonZero=any(Fnr,1)~=0; % nonzero column on F (desired equations)
 

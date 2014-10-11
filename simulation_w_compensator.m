@@ -21,7 +21,7 @@ disp('setting constants...')
     Sample.dt=en/1001;
     dt=Sample.dt;
 % controler options
-    ClosedLoop=0; 
+    ClosedLoop=1; 
     % select action (closed loop or open loop comparison)
 
 disp('predefined path')
@@ -29,8 +29,8 @@ disp('predefined path')
     f=0;
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) .1*cos(4*pi/en*t) ; 
-    Route.yfun=@(t) .1*sin(4*pi/en*t);
+    Route.xfun=@(t) .1*cos(5*pi/en*t) ; 
+    Route.yfun=@(t) .1*sin(5*pi/en*t);
     
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt)-Route.xfun(0); % route x samples
@@ -129,7 +129,7 @@ if ClosedLoop
         [Ngal, Dgal]=Coefficient_Matrixes(LN,LD);
     % act 3: Co-prime Factorization (pole zero cancelation)
         disp('Co-prime Factorization...')
-        [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
+        [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal,1e-8);
         [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
         [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
     % act 4: create compensator:
