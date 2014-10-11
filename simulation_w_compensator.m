@@ -16,26 +16,26 @@ disp('setting constants...')
 
 % --------------------------------------
    
-    en=10;
+    en=9;
 % sample rate:
     Sample.dt=en/1001;
     dt=Sample.dt;
 % controler options
-    ClosedLoop=true; 
+    ClosedLoop=1; 
     % select action (closed loop or open loop comparison)
 
 disp('predefined path')
-    sigma=10;
+    sigma=en/2;
     f=1;
     Route.start_time=0;
     Route.end_time=en;      
     Route.xfun=@(t) t ; 
-    Route.yfun=@(t) exp(-(t-en/2).^2/sigma).*cos(2*pi*f*t) ; 
+    Route.yfun=@(t) 0.01*t+exp(-(t-en/2).^2/sigma).*cos(2*pi*f*t) ; 
     
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt)-Route.xfun(0); % route x samples
     y=Route.yfun(tt)-Route.yfun(0); % route y samples 
-plot(tt,y)
+plot(x,y)
 %%
 % ------------------- build spline ----------------------
     %x(t)=an(1,t)*t^2+an(2,t)*t+an(3,t)
@@ -129,7 +129,7 @@ if ClosedLoop
     % act 3: Co-prime Factorization (pole zero cancelation)
         disp('Co-prime Factorization...')
         [Ngal_cp,Dgal_cp]=coprime_Factorization(Ngal,Dgal);
-%         [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
+        [Ngal_cp,Dgal_cp]=TFSimplify(Ngal_cp,Dgal_cp,1e-10);
         [Ntf, Dtf]=create_tf(Ngal_cp,Dgal_cp); % needed only for debugging
     % act 4: create compensator:
         disp('Compensator Design')
@@ -137,7 +137,7 @@ if ClosedLoop
         poles=1e4*exp(1j*psi);
     %     poles=[-.01 -.01-.1j -.01+.1j];
         [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
-%         [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
+        [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
         Agal=real(Agal);
         Bgal=real(Bgal);
         [Atf, Btf]=create_tf(Agal,Bgal); % needed only for debugging
@@ -188,6 +188,7 @@ else % not closed loop
     amp_cl=eye(3);
     G_cl=zeros(3);
 end
+%%
 % Run nonlinear simulation of closed loop with compensator:
  disp('starting nonlinear simulation... this may take a while')
     openModels = find_system('SearchDepth', 0);
