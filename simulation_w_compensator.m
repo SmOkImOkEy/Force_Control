@@ -16,7 +16,7 @@ disp('setting constants...')
 
 % --------------------------------------
    
-    en=5;
+    en=10;
 % sample rate:
     Sample.dt=en/1001;
     dt=Sample.dt;
@@ -25,15 +25,18 @@ disp('setting constants...')
     % select action (closed loop or open loop comparison)
 
 disp('predefined path')
+    sigma=10;
+    f=1;
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) cos(2*pi/en*t+pi/4);   
-    Route.yfun=@(t) 2*sin(4*pi/en*t+pi/4);
+    Route.xfun=@(t) t ; 
+    Route.yfun=@(t) exp(-(t-en/2).^2/sigma).*cos(2*pi*f*t) ; 
     
     tt=(Route.start_time:dt:Route.end_time);  
-    x=Route.xfun(tt); % route x samples
-    y=Route.yfun(tt); % route y samples 
-    
+    x=Route.xfun(tt)-Route.xfun(0); % route x samples
+    y=Route.yfun(tt)-Route.yfun(0); % route y samples 
+plot(tt,y)
+%%
 % ------------------- build spline ----------------------
     %x(t)=an(1,t)*t^2+an(2,t)*t+an(3,t)
     %y(t)=bn(1,t)*t^2+bn(2,t)*t+bn(3,t)
@@ -45,6 +48,17 @@ disp('spline building...')
 % force on time t depends on acceleration -> 2nd derivative of route
     F=2*Dipole.mass*[an(1,:);bn(1,:)]+Medium.viscosity*[2*an(1,:).*tt+an(2,:);
                                                         2*bn(1,:).*tt+bn(2,:)];
+%         F(2,:)=zeros(1,numel(tt));
+%         F(1,:)=[10*ones(1,1) zeros(1,499) zeros(1,numel(tt)-500)];
+%         
+%         v=cumtrapz(tt.',F.'/m);
+%         v(1,:)=v(1,:)+0;
+%         v(2,:)=v(2,:)+0;
+%         
+%         r=cumtrapz(tt.',v);
+%         x=r(:,1).';
+%         y=r(:,2).'+0;
+
 % ---------------------------------------------------------
 
 % -------------- B Field Direction Calculating ------------

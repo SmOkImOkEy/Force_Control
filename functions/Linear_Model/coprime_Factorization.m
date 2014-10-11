@@ -31,9 +31,9 @@ function [Ngal_CP,Dgal_CP]=coprime_Factorization(LNgal,LDgal,tol)
         temp=null(Smt,'r'); % solve homogenus equation.
       % error handler:
         if size(temp,2)>1 
-            disp('nullity larger than 1 - check tolerance')
+            error('This Route Cannot Be Done, Denominator Dependency')
         elseif isempty(temp)
-            disp('no nullity')
+            disp('No need to co-prime factorize')
             break;
         else
             temp=temp/temp(end); % normalizing last item - monic null vector.
