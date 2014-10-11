@@ -35,12 +35,11 @@ global g mu0 % constants
                 xCoil.Height=0.045; % coil height (w)
         end
         
-    maxCurr=inf;%0.3*preece; % third of preece (~10sec)current   
+    maxCurr=0.7*preece; %  of preece (~10sec)current   
 % Medium Parameters
     Medium.mu=0;%0.3;
-    Medium.alpha=10; % liquid friction coefficient for moment    
+    Medium.alpha=5; % liquid friction coefficient for moment    
     Medium.viscosity=0;%0.2;
-    gain=1; % conpensator is regular PID controller on this version
     alpha=Medium.alpha;
 % Capsule Parameters    
     capLen=30e-3; % capsule length (30mm)

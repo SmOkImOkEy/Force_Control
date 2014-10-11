@@ -1,7 +1,7 @@
 % SET RIGHT POLES
 
 clear all
-close all
+% close all
 clc
 global h kappa 
 
@@ -16,25 +16,26 @@ disp('setting constants...')
 
 % --------------------------------------
    
-    en=9;
+    en=11;
 % sample rate:
     Sample.dt=en/1001;
     dt=Sample.dt;
 % controler options
-    ClosedLoop=1; 
+    ClosedLoop=0; 
     % select action (closed loop or open loop comparison)
 
 disp('predefined path')
     sigma=en/2;
-    f=1;
+    f=0;
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) t ; 
-    Route.yfun=@(t) 0.01*t+exp(-(t-en/2).^2/sigma).*cos(2*pi*f*t) ; 
+    Route.xfun=@(t) .1*cos(4*pi/en*t) ; 
+    Route.yfun=@(t) .1*sin(4*pi/en*t);
     
     tt=(Route.start_time:dt:Route.end_time);  
     x=Route.xfun(tt)-Route.xfun(0); % route x samples
     y=Route.yfun(tt)-Route.yfun(0); % route y samples 
+    figure(40)
 plot(x,y)
 %%
 % ------------------- build spline ----------------------
@@ -135,6 +136,7 @@ if ClosedLoop
         disp('Compensator Design')
         psi=[pi pi-pi/40 pi+pi/40];
         poles=1e4*exp(1j*psi);
+        poles=1e4*[-1 -1-.001j -1+.001j];
     %     poles=[-.01 -.01-.1j -.01+.1j];
         [Agal, Bgal, Ftf]=Compensator_design(Ngal_cp,Dgal_cp,poles);
         [Bgal,Agal]=TFSimplify(Bgal,Agal,1e-10);
@@ -188,7 +190,7 @@ else % not closed loop
     amp_cl=eye(3);
     G_cl=zeros(3);
 end
-%%
+
 % Run nonlinear simulation of closed loop with compensator:
  disp('starting nonlinear simulation... this may take a while')
     openModels = find_system('SearchDepth', 0);
@@ -198,49 +200,51 @@ end
     end
     set_param('ForceControl_closed_loop', 'StopTime', num2str(tt(end)))
     set_param('ForceControl_closed_loop', 'StartTime', num2str(tt(1)))
+    %%
     sim('ForceControl_closed_loop')
     toc
  disp('plotting results, actuall model')
 simsamp=floor(linspace(1,numel(simForce.time),size(simForce.data,1)/10));
 
-figure(1)
+figure(10*ClosedLoop+1)
     subplot(2,1,1)
         fig=plot(tt,F(1,:),simForce.time(simsamp),squeeze(simForce.data(simsamp,1)));
         set(fig(1),'lineWidth',3)
         legend('F wanted','F got')
         % axis([0 en -7*abs(max(F(1,:))) 7*abs(max(F(1,:)))])
-        title 'Fx comparison'
+        title (['Fx comparison: ',loopstr])
 
         subplot(2,1,2)
         fig=plot(tt,F(2,:),simForce.time(simsamp),squeeze(simForce.data(simsamp,2)));
         set(fig(1),'lineWidth',3)
         legend('F wanted','F got')
-        title 'Fy comparison'
-figure(2)
+        title (['Fy comparison: ',loopstr])
+
+figure(10*ClosedLoop+2)
     subplot(2,2,1)
         plot(simCurrent.time(simsamp),squeeze(simCurrent.data(simsamp,1)))
-        title 'Ih_x'
+        title (['Ih_x: ',loopstr])
         xlabel 't [sec]'
         ylabel '[A]'
     subplot(2,2,2)
         plot(simCurrent.time(simsamp),squeeze(simCurrent.data(simsamp,2)))
-        title 'Ih_y'
+        title (['Ih_y: ',loopstr])
         xlabel 't [sec]'
         ylabel '[A]'
     subplot(2,2,3)
         plot(simCurrent.time(simsamp),squeeze(simCurrent.data(simsamp,3)))
-        title 'Im_x'
+        title (['Im_x: ',loopstr])
         xlabel 't [sec]'
         ylabel '[A]'
     subplot(2,2,4)
         plot(simCurrent.time(simsamp),squeeze(simCurrent.data(simsamp,4)))
-        title 'Im_y'
+        title (['Im_y: ',loopstr])
         xlabel 't [sec]'
         ylabel '[A]'
-figure(3)
+figure(10*ClosedLoop+3)
     fig=plot(x,y,simDipoleLoc.data(simsamp,1),simDipoleLoc.data(simsamp,2));
     legend('Desired','Simulated')
-    title 'Route Comparison'
+    title (['Route Comparison: ',loopstr])
     set(fig,'LineWidth',1.5)
     grid
 
@@ -252,7 +256,7 @@ xSim=simDipoleLoc.data(simsamp,1);
 ySim=simDipoleLoc.data(simsamp,2);
 phiSim=simPhiB.data(simsamp);
 % plot(tt,phiB,'b*',simphiB.time(simsamp),simphiB.data(simsamp),'r')
-figure(4)
+figure(10*ClosedLoop+4)
     subplot(3,1,1)
         fig=plot(tt,x,'k',T,xSim,'b--');
         set(fig(1),'lineWidth',1.7)
