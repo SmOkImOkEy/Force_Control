@@ -21,7 +21,7 @@ disp('setting constants...')
     Sample.dt=en/1001;
     dt=Sample.dt;
 % controler options
-    ClosedLoop=0; 
+    ClosedLoop=1; 
     % select action (closed loop or open loop comparison)
 
 disp('predefined path')
