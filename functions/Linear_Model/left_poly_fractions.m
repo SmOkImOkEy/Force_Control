@@ -5,16 +5,18 @@ function [N, D]=left_poly_fractions(Gtf)
 
     subMat_len=size(Gtf,1);
     [~,p,~]=zpkdata(Gtf); 
+    cellLen=cellfun('length',p);
+    [~, sI]=sort(cellLen,2,'descend');
     pLCD=cell(subMat_len);
-    for n=1:subMat_len
-        prow=p{1,n};
-        for m=1:subMat_len
-            ila=ismember(p{n,m},prow);
-            prow=[prow; p{n,m}(~ila)];
-            pLCD{n,m}=0;
+   for row=1:subMat_len
+        prow=p{row,sI(row,1)};
+        for col=1:subMat_len
+           ila=ismember(p{row,sI(row,col)},prow);
+           prow=[prow; p{row,sI(row,col)}(~ila)];
+           pLCD{row,sI(row,col)}=0;
         end
-        pLCD{n,n}=poly(prow);
+        pLCD{row,row}=poly(prow);
     end
-    D=minreal(tf(pLCD,1));
+    D=(tf(pLCD,1));
     N=minreal(D*Gtf);
 end

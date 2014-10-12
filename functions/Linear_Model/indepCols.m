@@ -1,6 +1,6 @@
 function indepInd=indepCols(Sm,subMat_len)
     dR=diag(abs(qr(Sm)));
-    dR=[dR ;zeros(size(Sm,2)-numel(dR),1)];
+%     dR=[dR ;zeros(size(Sm,2)-numel(dR),1)];
     indexes=reshape(1:size(Sm,2),subMat_len,[]);
     inD=indexes(:,5:2:end);
     inN=indexes(:,4:2:end);

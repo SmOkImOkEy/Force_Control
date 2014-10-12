@@ -29,12 +29,12 @@ disp('predefined path')
     f=0;
     Route.start_time=0;
     Route.end_time=en;      
-    Route.xfun=@(t) .1*cos(4*pi/en*t) ; 
-    Route.yfun=@(t) .1*sin(4*pi/en*t);
+    Route.xfun=@(t) .1*cos(5*pi/en*t) ; 
+    Route.yfun=@(t) .1*sin(5*pi/en*t);
     
     tt=(Route.start_time:dt:Route.end_time);  
-    x=Route.xfun(tt)-Route.xfun(0); % route x samples
-    y=Route.yfun(tt)-Route.yfun(0); % route y samples 
+    x=Route.xfun(tt); % route x samples
+    y=Route.yfun(tt); % route y samples 
     figure(40)
 plot(x,y)
 %%
