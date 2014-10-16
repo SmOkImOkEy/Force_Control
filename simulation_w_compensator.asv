@@ -117,6 +117,9 @@ disp('loading TF')
     disp('Creating open loop system')
     StateSpace=(ss(Amatrix,Bmatrix,Cmatrix,0));
     G_ol=minreal(tf(StateSpace));
+    [z,p,k]=zpkdata(G_ol);
+    k(abs(k/norm(k))<1e-10)=0;
+    G_ol=minreal(zpk(z,p,k));
 % -------------- Open loop system ready ---------------
 if ClosedLoop
      loopstr='closed';

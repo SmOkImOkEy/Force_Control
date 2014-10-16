@@ -1,4 +1,5 @@
-function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
+% function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
+Ngal=Ngal_cp;Dgal=Dgal_cp;
 % [Agal, Bgal]=Compensator_design(Ngal,Dgal,poles)
 % creates compensator to set poles of the system G=ND^-1
 % arbitrarily, 
@@ -22,7 +23,8 @@ function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
 
 % creating new Sm matrix of co-prime fractions
       Sm=double(create_Sm_rows(Ngal,Dgal,size(Fnr,2)));  % in order to find compensator we need Sm'  
-     [~, indepInd]=rref(Sm.');
+      indepInd=indepCols(Sm.',subMat_len);     %
+
       FnonZero=any(Fnr,1)~=0; % nonzero column on F (desired equations)
 
       Smt=Sm(indepInd,FnonZero); % create a full rank square:
@@ -37,5 +39,5 @@ function [Agal, Bgal, Ftf]=Compensator_design(Ngal,Dgal,poles)
       Compensator_resh=reshape(W,subMat_len,subMat_len,[]);
       Agal=Compensator_resh(:,:,1:2:end);
       Bgal=Compensator_resh(:,:,2:2:end); 
-end
+% end
   

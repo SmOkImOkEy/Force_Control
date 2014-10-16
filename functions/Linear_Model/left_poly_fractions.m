@@ -1,4 +1,4 @@
-function [N, D]=left_poly_fractions(Gtf)
+% function [N, D]=left_poly_fractions(Gtf)
 % [N, D]=leftFractions(Gtf)
 % calculating N and D so that:  Gtf=D^-1*N
 % N, D are not coprime, just left factors
@@ -19,4 +19,4 @@ function [N, D]=left_poly_fractions(Gtf)
     end
     D=(tf(pLCD,1));
     N=minreal(D*Gtf);
-end
+% end
